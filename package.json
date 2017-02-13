@@ -1,0 +1,29 @@
+{
+  "name": "angular",
+  "version": "1.0.0",
+  "description": "The AngularJS framework.",
+  "main": "index.js",
+  "private": "true",
+  "scripts": {
+    "test": "jshint src/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ro9ues/angular.git"
+  },
+  "keywords": [
+    "AngularJS",
+    "TDD",
+    "ES6",
+    "JavaScript"
+  ],
+  "author": "rogues",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ro9ues/angular/issues"
+  },
+  "homepage": "https://github.com/ro9ues/angular#readme",
+  "devDependencies": {
+    "jshint": "^2.9.4"
+  }
+}
