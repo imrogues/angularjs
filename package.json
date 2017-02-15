@@ -5,6 +5,7 @@
   "main": "index.js",
   "private": "true",
   "scripts": {
+    "precommit": "npm t",
     "test": "jshint src/"
   },
   "repository": {
@@ -24,6 +25,7 @@
   },
   "homepage": "https://github.com/ro9ues/angular#readme",
   "devDependencies": {
+    "husky": "^0.13.1",
     "jshint": "^2.9.4"
   }
 }
