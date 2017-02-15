@@ -1,3 +1,1 @@
-function sayHello (name) {
-  return 'Hello ' + name;
-}
+export default name => `Hello ${name}`;
