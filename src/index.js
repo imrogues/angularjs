@@ -1,1 +1,3 @@
-export default name => `Hello ${name}`;
+function sayHello (name) {
+  return 'Hello ' + name + '!';
+}
