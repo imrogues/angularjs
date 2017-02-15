@@ -1,4 +1,4 @@
-import sayHello from '../src/index';
+import sayHello from 'src/index';
 
 describe('sayHello function', () => {
   it('returns a salute', () => {

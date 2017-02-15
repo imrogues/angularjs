@@ -1,5 +1,12 @@
 var istanbul = require('browserify-istanbul');
 
+const alias = {
+  aliases: {
+    'src': './src',
+  },
+  verbose: false,
+};
+
 module.exports = function (config) {
   config.set({
     frameworks: ['browserify', 'jasmine'],
@@ -21,7 +28,7 @@ module.exports = function (config) {
         instrumenterConfig: {
           embedSource: true
         }
-      })],
+      }), ['aliasify', alias]],
       extensions: ['.js']
     },
     reporters: ['progress', 'coverage'],
