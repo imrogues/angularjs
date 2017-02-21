@@ -7,7 +7,7 @@ import _ from 'lodash';
  *     `Scope` constructor.
  * @type {Class}
  * @since 1.0.0
- * @author rogues <@ro9ues>
+ * @author rogues {@link https://twitter.com/ro9ues @ro9ues}
  * @example
  * const scope = new Scope();
  */
@@ -100,6 +100,7 @@ export default class Scope {
    */
   $digest () {
     _.forEach(this.$$watchers, watcher => {
+      watcher.watchExpression(this);
       watcher.listener();
     });
   }
