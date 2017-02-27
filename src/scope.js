@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 /**
  * @namespace Scope
  * @class Scope
@@ -99,9 +100,18 @@ export default class Scope {
    * expect(scope.counter).toBe(2);
    */
   $digest () {
+    let newValue, oldValue;
+
     _.forEach(this.$$watchers, watcher => {
-      watcher.watchExpression(this);
-      watcher.listener();
+      // $digest has to remember what the last value of each `watch` function
+      // was.
+      newValue = watcher.watchExpression(this);
+      oldValue = watcher.last;
+
+      if (newValue !== oldValue) {
+        watcher.last = newValue;
+        watcher.listener(newValue, oldValue, this);
+      }
     });
   }
 }

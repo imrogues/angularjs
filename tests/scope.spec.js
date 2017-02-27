@@ -34,5 +34,31 @@ describe('Scope', () => {
 
       expect(watchExpression).toHaveBeenCalledWith(scope);
     });
+
+    it('calls the listener function when the watched value changes', () => {
+      scope.someValue = 'a';
+      scope.counter   = 0;
+
+      scope.$watch(
+        scope => scope.someValue,
+        (newValue, oldValue, scope) => {
+          scope.counter++;
+        }
+      );
+
+      expect(scope.counter).toBe(0);
+
+      scope.$digest();
+      expect(scope.counter).toBe(1);
+
+      scope.$digest();
+      expect(scope.counter).toBe(1);
+
+      scope.someValue = 'b';
+      expect(scope.counter).toBe(1);
+
+      scope.$digest();
+      expect(scope.counter).toBe(2);
+    });
   });
 });
