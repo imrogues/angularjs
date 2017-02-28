@@ -34,6 +34,15 @@ export default class Scope {
   }
 
   /**
+   * @name Scope#uuid
+   * @function
+   * @description Function to initialize the `last` attribute to something we
+   *     can guarantee to be unique, so that’s different from anything a watch
+   *     function might return, including `undefined`.
+   */
+  uuid () {}
+
+  /**
    * @name Scope#$watch
    * @function
    * @description Register a `listener` callback to be executed whenever the
@@ -67,7 +76,8 @@ export default class Scope {
   $watch (watchExpression, listener) {
     const watcher = {
       watchExpression,
-      listener
+      listener,
+      last: this.uuid,
     };
 
     this.$$watchers.push(watcher);
