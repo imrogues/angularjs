@@ -120,7 +120,9 @@ export default class Scope {
 
       if (newValue !== oldValue) {
         watcher.last = newValue;
-        watcher.listener(newValue, oldValue, this);
+        watcher.listener(newValue,
+          (oldValue === this.uuid ? newValue : oldValue),
+          this);
       }
     });
   }

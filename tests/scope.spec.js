@@ -74,5 +74,20 @@ describe('Scope', () => {
 
       expect(scope.counter).toBe(1);
     });
+
+    it('calls listener with new value as old value the first time', () => {
+      let newValueAsOldValue;
+      scope.someValue = 123;
+
+      scope.$watch(
+        scope => scope.someValue,
+        (newValue, oldValue, scope) => {
+          newValueAsOldValue = oldValue;
+        }
+      );
+
+      scope.$digest();
+      expect(newValueAsOldValue).toBe(123);
+    });
   });
 });
