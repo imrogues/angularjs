@@ -98,5 +98,35 @@ describe('Scope', () => {
 
       expect(watchExpression).toHaveBeenCalled();
     });
+
+    it('triggers chained watchers in the same $digest', () => {
+      scope.name = 'rogues';
+
+      scope.$watch(
+        scope => scope.nameUpper,
+        (newValue, oldValue, scope) => {
+          if (newValue) {
+            scope.initial = `${newValue.substring(0, 1)}.`;
+          }
+        }
+      );
+
+      scope.$watch(
+        scope => scope.name,
+        (newValue, oldValue, scope) => {
+          if (newValue) {
+            scope.nameUpper = newValue.toUpperCase();
+          }
+        }
+      );
+
+      scope.$digest();
+      expect(scope.initial).toBe('R.');
+
+      scope.name = 'genius';
+
+      scope.$digest();
+      expect(scope.initial).toBe('G.');
+    });
   });
 });

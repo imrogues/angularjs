@@ -50,7 +50,7 @@ export default class Scope {
    * @param {(string|function)} watchExpression - The `watchExpression` is called
    *     on every call to `$digest()` and should return the value that will be
    *     watched.
-   * @param {function} listener - The `listener` is called only when the value from
+   * @param {function} [listener] - The `listener` is called only when the value from
    *     the current `watchExpression` and the previous call to `watchExpression`
    *     are not equal.
    *
@@ -84,6 +84,38 @@ export default class Scope {
   }
 
   /**
+   * @name Scope#$$digestOnce
+   * @function
+   * @description Runs all the watchers once, and returns a boolean value that
+   *     determines whether there any changes or not.
+   * @returns {Boolean} Value that determine if a watcher is dirty or not.
+   * @readonly
+   *
+   * @example
+   * const dirty = $$digestOnce();
+   */
+  $$digestOnce () {
+    let newValue, oldValue, dirty;
+
+    _.forEach(this.$$watchers, watcher => {
+      // $digest has to remember what the last value of each `watch` function
+      // was.
+      newValue = watcher.watchExpression(this);
+      oldValue = watcher.last;
+
+      if (newValue !== oldValue) {
+        watcher.last = newValue;
+        watcher.listener(newValue,
+          (oldValue === this.uuid ? newValue : oldValue),
+          this);
+        dirty = true;
+      }
+    });
+
+    return dirty;
+  }
+
+  /**
    * @name Scope#$digest
    * @function
    * @description Iterates over all registered watchers and calls their listener
@@ -110,20 +142,10 @@ export default class Scope {
    * expect(scope.counter).toBe(2);
    */
   $digest () {
-    let newValue, oldValue;
+    let dirty;
 
-    _.forEach(this.$$watchers, watcher => {
-      // $digest has to remember what the last value of each `watch` function
-      // was.
-      newValue = watcher.watchExpression(this);
-      oldValue = watcher.last;
-
-      if (newValue !== oldValue) {
-        watcher.last = newValue;
-        watcher.listener(newValue,
-          (oldValue === this.uuid ? newValue : oldValue),
-          this);
-      }
-    });
+    do {
+      dirty = this.$$digestOnce();
+    } while (dirty);
   }
 }
