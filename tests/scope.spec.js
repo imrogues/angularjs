@@ -1,4 +1,5 @@
-import Scope from 'src/scope';
+import _      from 'lodash';
+import Scope  from 'src/scope';
 
 describe('Scope', () => {
   it('can be constructed and used as an object', () => {
@@ -148,6 +149,30 @@ describe('Scope', () => {
       );
 
       expect(() => { scope.$digest(); }).toThrow();
+    });
+
+    it('ends the $digest when the last watch is clean', () => {
+      let watchExecutions = 0;
+      scope.watches = _.range(100);
+
+      _.times(100, i => {
+        scope.$watch(
+          scope => {
+            watchExecutions++;
+
+            return scope.watches[i];
+          },
+          (newValue, oldValue, scope) => {}
+        );
+      });
+
+      scope.$digest();
+      expect(watchExecutions).toBe(200);
+
+      scope.watches[0] = 'Cuak';
+
+      scope.$digest();
+      expect(watchExecutions).toBe(301);
     });
   });
 });

@@ -21,16 +21,17 @@ export default class Scope {
    *
    * @property {Array} $$watchers - A place to store all the watchers that
    *     have been registered.
+   * @property {Object} $$lastDirtyWatch - Keep track of the last dirty watch.
    */
   constructor () {
     /**
      * @description The double-dollar prefix `$$` means that this variable
      *     should be considered private to the framework, and should not be
      *     called from application code.
-     * type {Array}
      * @readonly
      */
     this.$$watchers = [];
+    this.$$lastDirtyWatch = null;
   }
 
   /**
@@ -104,11 +105,14 @@ export default class Scope {
       oldValue = watcher.last;
 
       if (newValue !== oldValue) {
+        this.$$lastDirtyWatch = watcher;
         watcher.last = newValue;
         watcher.listener(newValue,
           (oldValue === this.uuid ? newValue : oldValue),
           this);
         dirty = true;
+      } else if (this.$$lastDirtyWatch === watcher) {
+        return false;
       }
     });
 
@@ -144,6 +148,8 @@ export default class Scope {
   $digest () {
     let dirty;
     let TTL = 10;
+
+    this.$$lastDirtyWatch = null;
 
     do {
       dirty = this.$$digestOnce();
