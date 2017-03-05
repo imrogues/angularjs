@@ -73,7 +73,7 @@ export default class Scope {
    * scope.$digest();
    * expect(scope.counter).toBe(2);
    */
-  $watch (watchExpression, listener) {
+  $watch (watchExpression, listener = () => {}) {
     const watcher = {
       watchExpression,
       listener,
