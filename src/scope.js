@@ -143,9 +143,14 @@ export default class Scope {
    */
   $digest () {
     let dirty;
+    let TTL = 10;
 
     do {
       dirty = this.$$digestOnce();
+
+      if (dirty && !(TTL--)) {
+        throw 'ngException: TTL max–iterations has been reached.';
+      }
     } while (dirty);
   }
 }
