@@ -82,6 +82,7 @@ export default class Scope {
     };
 
     this.$$watchers.push(watcher);
+    this.$$lastDirtyWatch = null;
   }
 
   /**
