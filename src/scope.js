@@ -44,6 +44,30 @@ export default class Scope {
   uuid () {}
 
   /**
+   * @name Scope#$$areEqual
+   * @function
+   * @description Determines if two objects or two values are equivalent. Two
+   *     objects or values are considered equivalent if at least one of the
+   *     following is true:
+   *
+   * * Both objects or values pass `===` comparision.
+   * * Both objects or values are of the same type and all of their properties
+   *   are equal.
+   *
+   * @param {(Object|Array)} newValue - Object or value to compare.
+   * @param {(Object|Array)} oldValue - Object or value to compare.
+   * @param {Boolean} equality - Boolean flag to compare values in a deep way.
+   *
+   * @returns {Boolean} True if arguments are equal.
+   */
+  $$areEqual (newValue, oldValue, equality) {
+    if (equality)
+      return _.isEqual(newValue, oldValue);
+
+    return newValue === oldValue;
+  }
+
+  /**
    * @name Scope#$watch
    * @function
    * @description Register a `listener` callback to be executed whenever the
@@ -74,10 +98,11 @@ export default class Scope {
    * scope.$digest();
    * expect(scope.counter).toBe(2);
    */
-  $watch (watchExpression, listener = () => {}) {
+  $watch (watchExpression, listener = () => {}, equality = false) {
     const watcher = {
       watchExpression,
       listener,
+      equality,
       last: this.uuid,
     };
 
@@ -105,9 +130,9 @@ export default class Scope {
       newValue = watcher.watchExpression(this);
       oldValue = watcher.last;
 
-      if (newValue !== oldValue) {
+      if (!this.$$areEqual(newValue, oldValue, watcher.equality)) {
         this.$$lastDirtyWatch = watcher;
-        watcher.last = newValue;
+        watcher.last = (watcher.equality ? _.cloneDeep(newValue) : newValue);
         watcher.listener(newValue,
           (oldValue === this.uuid ? newValue : oldValue),
           this);
