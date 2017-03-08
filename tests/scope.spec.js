@@ -233,5 +233,25 @@ describe('Scope', () => {
       scope.$digest();
       expect(scope.counter).toBe(1);
     });
+
+    it('catches exceptions in watch functions and continues', () => {
+      scope.aValue  = 'abc';
+      scope.counter = 0;
+
+      scope.$watch(
+        scope => { throw 'ngError'; },
+        (newValue, oldValue, scope) => {}
+      );
+
+      scope.$watch(
+        scope => scope.aValue,
+        (newValue, oldValue, scope) => {
+          scope.counter++;
+        }
+      );
+
+      scope.$digest();
+      expect(scope.counter).toBe(1);
+    });
   });
 });
