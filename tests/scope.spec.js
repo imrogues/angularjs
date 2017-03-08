@@ -301,5 +301,36 @@ describe('Scope', () => {
       scope.$digest();
       expect(scope.counter).toBe(2);
     });
+
+    it('allows destroying a $watch during $digest', () => {
+      const watchExecutions = [];
+      scope.aValue = 'a';
+
+      scope.$watch(
+        scope => {
+          watchExecutions.push('first');
+
+          return scope.aValue;
+        }
+      );
+
+      const unbindWatcher = scope.$watch(
+        scope => {
+          watchExecutions.push('second');
+          unbindWatcher();
+        }
+      );
+
+      scope.$watch(
+        scope => {
+          watchExecutions.push('third');
+
+          return scope.aValue;
+        }
+      );
+
+      scope.$digest();
+      expect(watchExecutions).toEqual(['first', 'second', 'third', 'first', 'third']);
+    });
   });
 });

@@ -13,6 +13,7 @@ import _ from 'lodash';
  * const scope = new Scope();
  */
 export default class Scope {
+
   /**
    * @constructs Scope#constructor
    * @description Create an instance of `Scope`.
@@ -126,7 +127,7 @@ export default class Scope {
       last: this.uuid,
     };
 
-    this.$$watchers.push(watcher);
+    this.$$watchers.unshift(watcher);
 
     this.$$lastDirtyWatch = null;
 
@@ -156,7 +157,7 @@ export default class Scope {
   $$digestOnce () {
     let newValue, oldValue, dirty;
 
-    _.forEach(this.$$watchers, watcher => {
+    _.forEachRight(this.$$watchers, watcher => {
       try {
         // $digest has to remember what the last value of each `watch` function
         // was.
