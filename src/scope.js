@@ -44,6 +44,22 @@ export default class Scope {
   uuid () {}
 
   /**
+   * @name Scope#isNumber
+   * @function
+   * @description Determines if a reference is a `Number`. This includes the
+   *     **special** numbers `NaN`.
+   *
+   * @param {(Number)} newValue - Number to compare.
+   * @param {(Number)} oldValue - Number to compare.
+   *
+   * @returns {Boolean} True if numbers are NaN.
+   */
+  isNumber (newValue, oldValue) {
+    return (typeof newValue === 'number' && typeof oldValue === 'number' &&
+      isNaN(newValue) && isNaN(oldValue));
+  }
+
+  /**
    * @name Scope#$$areEqual
    * @function
    * @description Determines if two objects or two values are equivalent. Two
@@ -64,7 +80,7 @@ export default class Scope {
     if (equality)
       return _.isEqual(newValue, oldValue);
 
-    return newValue === oldValue;
+    return (newValue === oldValue) || this.isNumber(newValue, oldValue);
   }
 
   /**
