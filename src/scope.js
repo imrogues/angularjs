@@ -88,12 +88,16 @@ export default class Scope {
    * @function
    * @description Register a `listener` callback to be executed whenever the
    *     `watchExpression` changes.
-   * @param {(string|function)} watchExpression - The `watchExpression` is called
-   *     on every call to `$digest()` and should return the value that will be
-   *     watched.
-   * @param {function} [listener] - The `listener` is called only when the value from
-   *     the current `watchExpression` and the previous call to `watchExpression`
-   *     are not equal.
+   * @param {(string|function)} watchExpression - The `watchExpression` is
+   *     called on every call to `$digest()` and should return the value that
+   *     will be watched.
+   * @param {function} [listener=function] - The `listener` is called only when the value
+   *     from the current `watchExpression` and the previous call to
+   *     `watchExpression` are not equal.
+   * @param {Boolean} [equality=false] - Compare for object equality using
+   *     {@link Scope#$$areEqual areEqual} instead of comparing for reference equality.
+   *
+   * @returns {function} Returns a deregistration function for this listener.
    *
    * @example
    * scope.someValue = 'a';
@@ -123,7 +127,19 @@ export default class Scope {
     };
 
     this.$$watchers.push(watcher);
+
     this.$$lastDirtyWatch = null;
+
+    // @name Scope#deregisterWatch
+    // @function
+    // @description Removes `watch` from the `$$watchers` array.
+    return () => {
+      const index = this.$$watchers.indexOf(watcher);
+
+      if (index >= 0) {
+        this.$$watchers.splice(index, 1);
+      }
+    };
   }
 
   /**

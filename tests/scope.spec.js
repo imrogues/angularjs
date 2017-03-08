@@ -275,5 +275,31 @@ describe('Scope', () => {
       scope.$digest();
       expect(scope.counter).toBe(1);
     });
+
+    it('allows destroying a $watch with a removal function', () => {
+      scope.aValue  = 'a';
+      scope.counter = 0;
+
+      const unbindWatcher = scope.$watch(
+        scope => scope.aValue,
+        (newValue, oldValue, scope) => {
+          scope.counter++;
+        }
+      );
+
+      scope.$digest();
+      expect(scope.counter).toBe(1);
+
+      scope.aValue = 'b';
+
+      scope.$digest();
+      expect(scope.counter).toBe(2);
+
+      scope.aValue = 'c';
+      unbindWatcher();
+
+      scope.$digest();
+      expect(scope.counter).toBe(2);
+    });
   });
 });
