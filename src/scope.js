@@ -139,6 +139,7 @@ export default class Scope {
 
       if (index >= 0) {
         this.$$watchers.splice(index, 1);
+        this.$$lastDirtyWatch = null;
       }
     };
   }

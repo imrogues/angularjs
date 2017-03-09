@@ -332,5 +332,32 @@ describe('Scope', () => {
       scope.$digest();
       expect(watchExecutions).toEqual(['first', 'second', 'third', 'first', 'third']);
     });
+
+    it('allows a $watch to destroy another during $digest', () => {
+      scope.aValue  = 'a';
+      scope.counter = 0;
+
+      scope.$watch(
+        scope => scope.aValue,
+        (newValue, oldValue, scope) => {
+          unbindWatcher();
+        }
+      );
+
+      const unbindWatcher = scope.$watch(
+        scope => {},
+        (newValue, oldValue, scope) => {}
+      );
+
+      scope.$watch(
+        scope => scope.aValue,
+        (newValue, oldValue, scope) => {
+          scope.counter++;
+        }
+      );
+
+      scope.$digest();
+      expect(scope.counter).toBe(1);
+    });
   });
 });
