@@ -160,20 +160,22 @@ export default class Scope {
 
     _.forEachRight(this.$$watchers, watcher => {
       try {
-        // $digest has to remember what the last value of each `watch` function
-        // was.
-        newValue = watcher.watchExpression(this);
-        oldValue = watcher.last;
+        if (watcher) {
+          // $digest has to remember what the last value of each `watch` function
+          // was.
+          newValue = watcher.watchExpression(this);
+          oldValue = watcher.last;
 
-        if (!this.$$areEqual(newValue, oldValue, watcher.equality)) {
-          this.$$lastDirtyWatch = watcher;
-          watcher.last = (watcher.equality ? _.cloneDeep(newValue) : newValue);
-          watcher.listener(newValue,
-            (oldValue === this.uuid ? newValue : oldValue),
-            this);
-          dirty = true;
-        } else if (this.$$lastDirtyWatch === watcher) {
-          return false;
+          if (!this.$$areEqual(newValue, oldValue, watcher.equality)) {
+            this.$$lastDirtyWatch = watcher;
+            watcher.last = (watcher.equality ? _.cloneDeep(newValue) : newValue);
+            watcher.listener(newValue,
+              (oldValue === this.uuid ? newValue : oldValue),
+              this);
+            dirty = true;
+          } else if (this.$$lastDirtyWatch === watcher) {
+            return false;
+          }
         }
       } catch (e) {
         console.error(e);

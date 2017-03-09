@@ -359,5 +359,27 @@ describe('Scope', () => {
       scope.$digest();
       expect(scope.counter).toBe(1);
     });
+
+    it('allows destroying several $watches during $digest', () => {
+      scope.aValue  = 'a';
+      scope.counter = 0;
+
+      const unbindWatcher1 = scope.$watch(
+        scope => {
+          unbindWatcher1();
+          unbindWatcher2();
+        }
+      );
+
+      const unbindWatcher2 = scope.$watch(
+        scope => scope.aValue,
+        (newValue, oldValue, scope) => {
+          scope.counter++;
+        }
+      );
+
+      scope.$digest();
+      expect(scope.counter).toBe(0);
+    });
   });
 });
