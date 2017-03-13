@@ -31,7 +31,7 @@ module.exports = function (config) {
       }), ['aliasify', alias]],
       extensions: ['.js']
     },
-    reporters: ['progress', 'coverage'],
+    reporters: ['spec', 'coverage'],
     coverageReporter: {
       instrumenters: {isparta: require('isparta')},
       instrumenter: {
