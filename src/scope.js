@@ -190,7 +190,6 @@ export default class Scope {
    * @function
    * @description Iterates over all registered watchers and calls their listener
    *     functions on the current `Scope`.
-   * @function
    *
    * @example
    * scope.someValue = 'a';
@@ -224,5 +223,35 @@ export default class Scope {
         throw 'ngException: TTL max–iterations has been reached.';
       }
     } while (dirty);
+  }
+
+  /**
+   * @name Scope#$eval
+   * @kind function
+   * @function
+   *
+   * @description
+   * Executes the `expression` on the current scope and returns the result. This
+   * is useful when evaluating AngularJS expressions.
+   *
+   * @example
+   * const scope = new Scope();
+   * scope.a = 1;
+   * scope.b = 2;
+   *
+   * expect(scope.$eval('a+b')).toEqual(3);
+   * expect(scope.$eval(scope => scope.a + scope.b)).toEqual(3);
+   *
+   * @param {(string|function())=} expression An AngularJS expression to be
+   *     executed.
+   *
+   *     - `function(scope)`: execute the function with the current `scope`
+   *     parameter.
+   * @param {(object)=} locals Local variables object, useful for overriding
+   *     values in scope.
+   * @returns {*} The result of evaluating the expression.
+   */
+  $eval (expression, locals) {
+    return expression(this, locals);
   }
 }
