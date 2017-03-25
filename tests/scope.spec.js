@@ -410,4 +410,32 @@ describe('Scope', () => {
       expect(result).toBe(44);
     });
   });
+
+  describe('$apply', () => {
+    let scope;
+
+    beforeEach(() => {
+      scope = new Scope();
+    });
+
+    it('executes the given function and starts the $digest', () => {
+      scope.aValue  = 'a';
+      scope.counter = 0;
+
+      scope.$watch(
+        scope => scope.aValue,
+        (newValue, oldValue, scope) => {
+          scope.counter++;
+        }
+      );
+
+      scope.$digest();
+      expect(scope.counter).toBe(1);
+
+      scope.$apply(scope => {
+        scope.aValue = 'b';
+      });
+      expect(scope.counter).toBe(2);
+    });
+  });
 });

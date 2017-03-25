@@ -245,13 +245,59 @@ export default class Scope {
    * @param {(string|function())=} expression An AngularJS expression to be
    *     executed.
    *
-   *     - `function(scope)`: execute the function with the current `scope`
-   *     parameter.
+   *     - `function(scope)`: execute the function with current `scope` param.
+   *
    * @param {(object)=} locals Local variables object, useful for overriding
    *     values in scope.
+   *
    * @returns {*} The result of evaluating the expression.
    */
   $eval (expression, locals) {
     return expression(this, locals);
+  }
+
+  /**
+   * @name Scope#$apply
+   * @kind function
+   * @function
+   *
+   * @description
+   * `$apply()` is used to execute an expression in AngularJS from outside of
+   * the AngularJS framework. (For example browser DOM events, setTimeout, XHR
+   * or third party libraries).
+   * Because we are calling into the AngularJS framework we need to perform
+   * proper scope life cycle, {@link Scope#$digest executing watches}.
+   *
+   * Scope’s `apply()` method transitions through the following stages:
+   *
+   *    - The **expression** is executed using the {@link Scope#$eval $eval()}
+   *      method.
+   *    - The {@link Scope#$watch watch} listeners are fired immediately after the
+   *      expression was executed using the {@link Scope#$digest $digest()}
+   *      method.
+   *
+   * @example <caption><h6>Pseudo-Code of `apply()`</h6></caption>
+   * function $apply(expr) {
+   *   try {
+   *     return $eval(expr);
+   *   } finally {
+   *     $digest();
+   *   }
+   * }
+   *
+   *
+   * @param {(string|function())=} expression An AngularJS expression to be
+   *     executed.
+   *
+   *     - `function(scope)`: execute the function with current `scope` param.
+   *
+   * @returns {*} The result of evaluating the expression.
+   */
+  $apply (expression) {
+    try {
+      return this.$eval(expression);
+    } finally {
+      this.$digest();
+    }
   }
 }
