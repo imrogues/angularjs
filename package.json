@@ -7,6 +7,7 @@
   "scripts": {
     "precommit": "npm t",
     "predocs": "rimraf docs",
+    "coverage": "cat ./coverage/lcov/lcov.info | codecov",
     "docs": "jsdoc -t template -c jsdoc.json -R README.md -r",
     "lint": "jshint src tests",
     "pretest": "npm run lint",
@@ -35,6 +36,7 @@
     "babelify": "^7.3.0",
     "browserify": "^14.1.0",
     "browserify-istanbul": "^2.0.0",
+    "codecov": "^2.1.0",
     "husky": "^0.13.1",
     "isparta": "^4.0.0",
     "istanbul": "github:gotwarlost/istanbul#source-map",
