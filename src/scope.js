@@ -33,6 +33,7 @@ export default class Scope {
      */
     this.$$watchers = [];
     this.$$lastDirtyWatch = null;
+    this.$$asyncQueue = [];
   }
 
   /**
@@ -217,6 +218,12 @@ export default class Scope {
     this.$$lastDirtyWatch = null;
 
     do {
+      while (this.$$asyncQueue.length) {
+        const asyncTask = this.$$asyncQueue.shift();
+
+        asyncTask.scope.$eval(asyncTask.expression);
+      }
+
       dirty = this.$$digestOnce();
 
       if (dirty && !(TTL--)) {
@@ -254,6 +261,32 @@ export default class Scope {
    */
   $eval (expression, locals) {
     return expression(this, locals);
+  }
+
+  /**
+   * @name Scope#$evalAsync
+   * @kind function
+   * @function
+   *
+   * @description
+   * Executes the expression on the current scope at a later point in time.
+   *
+   * The `$evalAsync` makes no guarantees as to when the `expression` will be
+   * executed, only that:
+   *
+   *    - it will execute after the function that scheduled the evaluation.
+   *    - at least one {@link Scope#$digest $digest cycle} will be performed
+   *       after `expression` execution.
+   *
+   * __Note:__ Hi.
+   *
+   * @param {(string|function())=} expression An AngularJS expression ready to
+   *     be executed.
+   *
+   *     - `function(scope)`: execute the function with current `scope` param.
+   */
+  $evalAsync (expression) {
+    this.$$asyncQueue.push({ scope: this, expression });
   }
 
   /**
