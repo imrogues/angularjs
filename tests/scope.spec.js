@@ -466,5 +466,25 @@ describe('Scope', () => {
       expect(scope.asyncEvaluated).toBe(true);
       expect(scope.asyncEvaluatedImmediately).toBe(false);
     });
+
+    it('executes $evalAsynced functions added by watch functions', () => {
+      scope.aValue = [1, 2, 3];
+      scope.asyncEvaluated = false;
+
+      scope.$watch(
+        scope => {
+          if (!scope.asyncEvaluated) {
+            scope.$evalAsync(scope => {
+              scope.asyncEvaluated = true;
+            });
+          }
+          return scope.aValue;
+        },
+        (newValue, oldValue, scope) => {}
+      );
+
+      scope.$digest();
+      expect(scope.asyncEvaluated).toBe(true);
+    });
   });
 });
