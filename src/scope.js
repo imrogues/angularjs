@@ -226,7 +226,7 @@ export default class Scope {
 
       dirty = this.$$digestOnce();
 
-      if (dirty && !(TTL--)) {
+      if ((dirty || this.$$asyncQueue.length) && !(TTL--)) {
         throw 'ngException: TTL max–iterations has been reached.';
       }
     } while (dirty || this.$$asyncQueue.length);

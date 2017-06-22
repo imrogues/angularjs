@@ -506,5 +506,20 @@ describe('Scope', () => {
       scope.$digest();
       expect(scope.asyncEvaluatedTimes).toBe(2);
     });
+
+    it('eventually halts $evalAsync(s) added by watches', () => {
+      scope.aValue = [1, 2, 3];
+
+      scope.$watch(
+        scope => {
+          scope.$evalAsync(scope => {});
+
+          return scope.aValue;
+        },
+        (newValue, oldValue, scope) => {}
+      );
+
+      expect(() => { scope.$digest(); }).toThrow();
+    });
   });
 });
