@@ -381,6 +381,33 @@ describe('Scope', () => {
       scope.$digest();
       expect(scope.counter).toBe(0);
     });
+
+    it('has a $$phase field whose value is the current digest phase', () => {
+      scope.aValue = [1, 2, 3];
+      scope.phase = {
+        inWatch: undefined,
+        inListener: undefined,
+        inApply: undefined,
+      };
+
+      scope.$watch(
+        scope => {
+          scope.phase.inWatch = scope.$$phase;
+          return scope.aValue;
+        },
+        (newValue, oldValue, scope) => {
+          scope.phase.inListener = scope.$$phase;
+        }
+      );
+
+      scope.$apply(scope => {
+        scope.phase.inApply = scope.$$phase;
+      });
+
+      expect(scope.phase.inWatch).toBe('$digest');
+      expect(scope.phase.inListener).toBe('$digest');
+      expect(scope.phase.inApply).toBe('$apply');
+    });
   });
 
   describe('$eval', () => {

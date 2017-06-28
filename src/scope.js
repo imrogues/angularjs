@@ -23,6 +23,10 @@ export default class Scope {
    * @property {Array} $$watchers - A place to store all the watchers that
    *     have been registered.
    * @property {Object} $$lastDirtyWatch - Keep track of the last dirty watch.
+   * @property {Array} $$asynQueue - Store the $evalAsync jobs that have been
+   *     scheduled.
+   * @property {String} $$phase - A string attribute that stores information
+   *     about what’s currently going on.
    */
   constructor () {
     /**
@@ -34,6 +38,7 @@ export default class Scope {
     this.$$watchers = [];
     this.$$lastDirtyWatch = null;
     this.$$asyncQueue = [];
+    this.$$phase = null;
   }
 
   /**
@@ -216,6 +221,7 @@ export default class Scope {
     let TTL = 10;
 
     this.$$lastDirtyWatch = null;
+    this.$beginPhase('$digest');
 
     do {
       while (this.$$asyncQueue.length) {
@@ -227,9 +233,12 @@ export default class Scope {
       dirty = this.$$digestOnce();
 
       if ((dirty || this.$$asyncQueue.length) && !(TTL--)) {
+        this.$clearPhase();
         throw 'ngException: TTL max–iterations has been reached.';
       }
     } while (dirty || this.$$asyncQueue.length);
+
+    this.$clearPhase();
   }
 
   /**
@@ -328,9 +337,23 @@ export default class Scope {
    */
   $apply (expression) {
     try {
+      this.$beginPhase('$apply');
       return this.$eval(expression);
     } finally {
+      this.$clearPhase();
       this.$digest();
     }
+  }
+
+  $beginPhase (phase) {
+    if (this.$$phase) {
+      throw `${this.$$phase} already in progress.`;
+    }
+
+    this.$$phase = phase;
+  }
+
+  $clearPhase () {
+    this.$$phase = null;
   }
 }
