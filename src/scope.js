@@ -295,6 +295,13 @@ export default class Scope {
    *     - `function(scope)`: execute the function with current `scope` param.
    */
   $evalAsync (expression) {
+    if (!this.$$phase && !this.$$asyncQueue.length) {
+      setTimeout(() => {
+        if (this.$$asyncQueue.length) {
+          this.$digest();
+        }
+      }, 0);
+    }
     this.$$asyncQueue.push({ scope: this, expression });
   }
 
@@ -345,6 +352,16 @@ export default class Scope {
     }
   }
 
+  /**
+   * @name Scope#$beginPhase
+   * @kind function
+   * @function
+   *
+   * @description
+   * A function that is controlling the phase: Setting it.
+   *
+   * @param {string} - The current phase in digest cycle.
+   */
   $beginPhase (phase) {
     if (this.$$phase) {
       throw `${this.$$phase} already in progress.`;
@@ -353,6 +370,14 @@ export default class Scope {
     this.$$phase = phase;
   }
 
+  /**
+   * @name Scope#$clearPhase
+   * @kind function
+   * @function
+   *
+   * @description
+   * A function that clear `$$phase` field.
+   */
   $clearPhase () {
     this.$$phase = null;
   }
