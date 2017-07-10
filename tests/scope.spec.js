@@ -466,6 +466,60 @@ describe('Scope', () => {
     });
   });
 
+  describe('$applyAsync', () => {
+    let scope;
+
+    beforeEach(() => {
+      scope = new Scope();
+    });
+
+    it('allows async $apply with $applyAsync', done => {
+      scope.counter = 0;
+
+      scope.$watch(
+        scope => scope.aValue,
+        (newValue, oldValue, scope) => {
+          scope.counter++;
+        }
+      );
+
+      scope.$digest();
+      expect(scope.counter).toBe(1);
+
+      scope.$applyAsync(scope => {
+        scope.aValue = 'abc';
+      });
+      expect(scope.counter).toBe(1);
+
+      setTimeout(() => {
+        expect(scope.counter).toBe(2);
+        done();
+      }, 50);
+    });
+
+    it('never executes $applyAsynced function in the same cycle', done => {
+      scope.aValue = [1, 2, 3];
+      scope.asyncApplied = false;
+
+      scope.$watch(
+        scope => scope.aValue,
+        (newValue, oldValue, scope) => {
+          scope.$applyAsync(scope => {
+            scope.asyncApplied = true;
+          });
+        }
+      );
+
+      scope.$digest();
+      expect(scope.asyncApplied).toBe(false);
+
+      setTimeout(() => {
+        expect(scope.asyncApplied).toBe(true);
+        done();
+      }, 50);
+    });
+  });
+
   describe('$evalAsync', () => {
     let scope;
 

@@ -25,6 +25,8 @@ export default class Scope {
    * @property {Object} $$lastDirtyWatch - Keep track of the last dirty watch.
    * @property {Array} $$asynQueue - Store the $evalAsync jobs that have been
    *     scheduled.
+   * @property {Array} $$applyAsyncQueue - Store the $applyAsync jobs that have
+   *     been scheduled.
    * @property {String} $$phase - A string attribute that stores information
    *     about what’s currently going on.
    */
@@ -35,10 +37,11 @@ export default class Scope {
      *     called from application code.
      * @readonly
      */
-    this.$$watchers = [];
-    this.$$lastDirtyWatch = null;
-    this.$$asyncQueue = [];
-    this.$$phase = null;
+    this.$$watchers         = [];
+    this.$$lastDirtyWatch   = null;
+    this.$$asyncQueue       = [];
+    this.$$applyAsyncQueue  = [];
+    this.$$phase            = null;
   }
 
   /**
@@ -350,6 +353,20 @@ export default class Scope {
       this.$clearPhase();
       this.$digest();
     }
+  }
+
+  $applyAsync (expression) {
+    this.$$applyAsyncQueue.push(() => {
+      this.$eval(expression);
+    });
+
+    setTimeout(() => {
+      this.$apply(() => {
+        while(this.$$applyAsyncQueue.length) {
+          this.$$applyAsyncQueue.shift()();
+        }
+      });
+    }, 0);
   }
 
   /**
