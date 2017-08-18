@@ -27,6 +27,8 @@ export default class Scope {
    *     scheduled.
    * @property {Array} $$applyAsyncQueue - Store the $applyAsync jobs that have
    *     been scheduled.
+   * @property {Function} $$applyAsyncId - Keep track of whether a `setTimeout`
+   *     to drain the queue has already been scheduled.
    * @property {String} $$phase - A string attribute that stores information
    *     about what’s currently going on.
    */
@@ -41,6 +43,7 @@ export default class Scope {
     this.$$lastDirtyWatch   = null;
     this.$$asyncQueue       = [];
     this.$$applyAsyncQueue  = [];
+    this.$$applyAsyncId     = null;
     this.$$phase            = null;
   }
 
@@ -355,18 +358,31 @@ export default class Scope {
     }
   }
 
+  /**
+   * @name Scope#$applyAsync
+   * @kind function
+   * @function
+   *
+   * @description
+   *
+   * @param {(string|function())=} expression An expression to be executed.
+   */
   $applyAsync (expression) {
     this.$$applyAsyncQueue.push(() => {
       this.$eval(expression);
     });
 
-    setTimeout(() => {
-      this.$apply(() => {
-        while(this.$$applyAsyncQueue.length) {
-          this.$$applyAsyncQueue.shift()();
-        }
-      });
-    }, 0);
+    if (this.$$applyAsyncId === null) {
+      this.$$applyAsyncId = setTimeout(() => {
+        this.$apply(() => {
+          while(this.$$applyAsyncQueue.length) {
+            this.$$applyAsyncQueue.shift()();
+          }
+
+          this.$$applyAsyncId = null;
+        });
+      }, 0);
+    }
   }
 
   /**
