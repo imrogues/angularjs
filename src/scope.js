@@ -229,6 +229,11 @@ export default class Scope {
     this.$$lastDirtyWatch = null;
     this.$beginPhase('$digest');
 
+    if (this.$$applyAsyncId) {
+      clearTimeout(this.$$applyAsyncId);
+      this.$$flushApplyAsync();
+    }
+
     do {
       while (this.$$asyncQueue.length) {
         const asyncTask = this.$$asyncQueue.shift();
@@ -358,6 +363,14 @@ export default class Scope {
     }
   }
 
+  $$flushApplyAsync () {
+    while(this.$$applyAsyncQueue.length) {
+      this.$$applyAsyncQueue.shift()();
+    }
+
+    this.$$applyAsyncId = null;
+  }
+
   /**
    * @name Scope#$applyAsync
    * @kind function
@@ -374,13 +387,7 @@ export default class Scope {
 
     if (this.$$applyAsyncId === null) {
       this.$$applyAsyncId = setTimeout(() => {
-        this.$apply(() => {
-          while(this.$$applyAsyncQueue.length) {
-            this.$$applyAsyncQueue.shift()();
-          }
-
-          this.$$applyAsyncId = null;
-        });
+        this.$apply(this.$$flushApplyAsync.bind(this));
       }, 0);
     }
   }

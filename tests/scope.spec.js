@@ -543,6 +543,36 @@ describe('Scope', () => {
         done();
       }, 50);
     });
+
+    it('cancels and flushes $applyAsync if digested first', done => {
+      scope.counter = 0;
+
+      scope.$watch(
+        scope => {
+          scope.counter++;
+          return scope.aValue;
+        },
+        (newValue, oldValue, scope) => {}
+      );
+
+      scope.$applyAsync(scope => {
+        scope.aValue = 'abc';
+      });
+
+      scope.$applyAsync(scope => {
+        scope.aValue = 'def';
+      });
+
+      scope.$digest();
+
+      expect(scope.counter).toBe(2);
+      expect(scope.aValue).toEqual('def');
+
+      setTimeout(() => {
+        expect(scope.counter).toBe(2);
+        done();
+      }, 50);
+    });
   });
 
   describe('$evalAsync', () => {
