@@ -678,4 +678,49 @@ describe('Scope', () => {
       }, 50);
     });
   });
+
+  describe('$$postDigest', () => {
+    let scope;
+
+    beforeEach(() => {
+      scope = new Scope();
+    });
+
+    it('runs after each digest', () => {
+      scope.counter = 0;
+
+      scope.$$postDigest(() => {
+        scope.counter++;
+      });
+
+      expect(scope.counter).toBe(0);
+      scope.$digest();
+
+      expect(scope.counter).toBe(1);
+      scope.$digest();
+
+      expect(scope.counter).toBe(1);
+    });
+
+    it('does not include $$postDigest in the digest', () => {
+      scope.theValue = 'Original';
+
+      scope.$$postDigest(() => {
+        scope.theValue = 'Changed';
+      });
+
+      scope.$watch(
+        scope => scope.theValue,
+        (newValue, oldValue, scope) => {
+          scope.watchedValue = newValue;
+        }
+      );
+
+      scope.$digest();
+      expect(scope.watchedValue).toBe('Original');
+
+      scope.$digest();
+      expect(scope.watchedValue).toBe('Changed');
+    });
+  });
 });

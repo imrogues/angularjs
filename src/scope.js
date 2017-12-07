@@ -29,6 +29,8 @@ export default class Scope {
    *     been scheduled.
    * @property {Function} $$applyAsyncId - Keep track of whether a `setTimeout`
    *     to drain the queue has already been scheduled.
+   * @property {Array} $$postDigestQueue - Store the $$postDigest functions
+   *     that have been scheduled.
    * @property {String} $$phase - A string attribute that stores information
    *     about what’s currently going on.
    */
@@ -44,6 +46,7 @@ export default class Scope {
     this.$$asyncQueue       = [];
     this.$$applyAsyncQueue  = [];
     this.$$applyAsyncId     = null;
+    this.$$postDigestQueue  = [];
     this.$$phase            = null;
   }
 
@@ -250,6 +253,12 @@ export default class Scope {
     } while (dirty || this.$$asyncQueue.length);
 
     this.$clearPhase();
+
+    // Scope.$digest is consuming the queue by removing functions from the
+    // beginning of the [] using [].shift() until is empty.
+    while(this.$$postDigestQueue.length) {
+      this.$$postDigestQueue.shift()();
+    }
   }
 
   /**
@@ -376,7 +385,7 @@ export default class Scope {
    * @kind function
    * @function
    *
-   * @description
+   * @description TBD
    *
    * @param {(string|function())=} expression An expression to be executed.
    */
@@ -420,5 +429,21 @@ export default class Scope {
    */
   $clearPhase () {
     this.$$phase = null;
+  }
+
+  /**
+   * @name Scope#$$postDigest
+   * @kind function
+   * @function
+   *
+   * @description
+   * A function that its execution is after the `$digest`. Changes made to the
+   * scope from within `$$postDigest` they won’t be immediately picked up by
+   * dirty-checking mechanism.
+   *
+   * @param {Function()} fn The function to be scheduled.
+   */
+  $$postDigest (fn) {
+    this.$$postDigestQueue.push(fn);
   }
 }
